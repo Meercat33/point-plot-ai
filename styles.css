@@ -1,0 +1,140 @@
+:root{
+  --grid-size: 920px; /* overall grid area (larger) */
+  --cell-count: 20; /* now 20x20 */
+  --cell-size: calc(var(--grid-size) / var(--cell-count));
+  --point-size: 30px;
+  --bg: #f8fafc;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --success: #16a34a;
+  --danger: #dc2626;
+}
+
+*{box-sizing:border-box}
+body{
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin:0;
+  background:var(--bg);
+  color:#0f172a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+.app{
+  width:100%;
+  max-width:none;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center; /* center everything horizontally */
+  gap:18px;
+}
+.header h1{margin:0 0 6px 0}
+.subtitle{margin:0 0 14px 0;color:var(--muted)}
+
+.controls{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center; /* center controls so grid aligns with rest of app */
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.target,.current{font-weight:600}
+.buttons{display:flex;gap:8px}
+button{
+  background:var(--accent);
+  color:white;
+  border:0;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+button[disabled]{opacity:.5;cursor:not-allowed}
+.grid-wrap{display:flex;gap:12px;align-items:center;justify-content:center}
+.grid-wrap .axis{display:none} /* hide outer placeholder axes so grid can truly center */
+.axis{font-size:12px;color:var(--muted);width:40px;text-align:center}
+.x-axis{height:480px;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center}
+.y-axis{width:100%;text-align:center}
+
+.grid-container{
+  position:relative;
+  /* responsive square: width capped by --grid-size and viewport */
+  width: min(var(--grid-size), 96vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background-image:
+    linear-gradient(to right, rgba(15,23,42,0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15,23,42,0.08) 1px, transparent 1px);
+  background-size: var(--cell-size) var(--cell-size);
+  border-radius:8px;
+  box-shadow:0 6px 18px rgba(2,6,23,0.08);
+  touch-action: none;
+  overflow:hidden; /* prevent point rendering outside */
+}
+
+.draggable{
+  position:absolute;
+  width:var(--point-size);
+  height:var(--point-size);
+  border-radius:50%;
+  background:var(--accent);
+  transform:translate(-50%,-50%);
+  left:0;top:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(2,6,23,0.12);
+  transition:box-shadow .18s, transform .12s, background-color .18s;
+}
+.draggable:active{transform:translate(-50%,-50%) scale(.96)}
+
+.draggable::after{content:"";width:8px;height:8px;background:rgba(255,255,255,0.9);border-radius:50%}
+
+.flash-success{
+  animation: flashSuccess 900ms ease forwards;
+}
+.flash-fail{
+  animation: flashFail 700ms ease forwards;
+}
+
+@keyframes flashSuccess{
+  0%{background:var(--success);transform:translate(-50%,-50%) scale(1.08)}
+  60%{background:var(--success)}
+  100%{background:var(--accent);transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes flashFail{
+  0%{background:var(--danger);transform:translate(-50%,-50%) scale(1.06)}
+  50%{background:var(--danger)}
+  100%{background:var(--accent);transform:translate(-50%,-50%) scale(1)}
+}
+
+/* axis line at zero: thicker and darker */
+.axis-line{position:absolute;background:rgba(15,23,42,0.08);pointer-events:none}
+.axis-x-line{height:1px;left:0;right:0;top:0;}
+.axis-y-line{width:1px;top:0;bottom:0;left:0;}
+
+/* zero axes (bolder) placed at the origin (bottom-left) */
+.axis-x-zero{height:3px;background:rgba(15,23,42,0.18);left:0;right:0;top:50%;transform:translateY(-50%)}
+.axis-y-zero{width:3px;background:rgba(15,23,42,0.18);top:0;bottom:0;left:50%;transform:translateX(-50%)}
+.zero-label{position:absolute;left:calc(50% + 8px);top:calc(50% + 8px);font-size:12px;color:var(--muted);background:transparent}
+
+/* containers for generated ticks/labels */
+#ticks, #labels{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+
+/* ticks and labels */
+.tick{position:absolute;width:1px;height:8px;background:rgba(15,23,42,0.18);pointer-events:none}
+.tick.x{height:8px}
+.tick.y{width:8px;height:1px}
+.tick-label{position:absolute;font-size:11px;color:var(--muted);pointer-events:none}
+.tick-label.x{top:calc(50% + 14px);transform:translateX(-50%);z-index:5}
+.tick-label.y{left:calc(50% - 14px);transform:translateY(-50%);z-index:5}
+
+#ticks, #labels{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:4}
+
+.footer{margin-top:12px;color:var(--muted);font-size:13px}
+
+@media (max-width:640px){
+  :root{--grid-size:320px}
+  .axis{display:none}
+}
